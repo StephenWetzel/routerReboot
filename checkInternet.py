@@ -13,16 +13,17 @@ intervalSites = "1" #seconds between pings to sites
 #router means we could ping router, but not internet sites, we allow calling function decide how to handle this
 
 def checkUp():
-	#can we ping router?
-	response = os.system("ping -c " + numPingsRouter + " " + routerIp + " 2>&1 >/dev/null")
-	if response != 0:
-		#if we can't even ping router then we are definitely down
-		return "down"
-
 	#does router serve status page?
 	response = os.system("wget -qO- " + routerIp + " 2>&1 >/dev/null")
 	if response != 0:
 		return "down"
+
+	#if the router is frozen, wget fails faster than ping, so check that first
+	#can we ping router?
+	response = os.system("ping -c " + numPingsRouter + " " + routerIp + " 2>&1 >/dev/null")
+	if response != 0:
+		#if we can't even ping router then we are definitely down
+		return "down"	
 
 	#try internet sites
 	for site in sites:
